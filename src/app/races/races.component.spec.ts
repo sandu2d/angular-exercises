@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 
 import { RacesComponent } from './races.component';
 import { RaceComponent } from '../race/race.component';
+import { PonyComponent } from '../pony/pony.component';
 import { RaceService } from '../race.service';
 import { RaceModel } from '../models/race.model';
 
@@ -12,7 +13,7 @@ describe('RacesComponent', () => {
 
   beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [RacesComponent, RaceComponent],
+      declarations: [RacesComponent, RaceComponent, PonyComponent],
       providers: [{ provide: RaceService, useValue: service }]
     })
   );
