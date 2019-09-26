@@ -1,5 +1,6 @@
 <div>
     <h2>{{ raceModel.name }}</h2>
+    <p>{{ getStartDateTime() }}</p>
     <ul *ngFor="let pony of raceModel.ponies">
         <pr-pony [ponyModel]="pony"></pr-pony>
     </ul>
