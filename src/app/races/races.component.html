@@ -1,4 +1,4 @@
 <p>races works!</p>
-<div *ngFor="let race of races">
+<div *ngFor="let race of races | slice:0:4">
     <div><h2>{{race.name}}</h2></div>
 </div>

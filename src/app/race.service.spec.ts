@@ -12,7 +12,7 @@ describe('RaceService', () => {
   it('should list races', () => {
     const races = service.list();
     expect(races.length)
-      .withContext('The service should return two races for the `list()` method')
-      .toBe(2);
+      .withContext('The service should return five races for the `list()` method')
+      .toBe(5);
   });
 });
