@@ -10,7 +10,7 @@ describe('ponyracer App', () => {
 
   it('should display welcome message', () => {
     page.navigateTo();
-    expect(page.getTitleText()).toEqual('Ponyracer');
+    expect(page.getTitleText()).toEqual('Ponyracer Always a pleasure to bet on ponies');
   });
 
   afterEach(async () => {

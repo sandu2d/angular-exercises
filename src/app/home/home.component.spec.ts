@@ -1,25 +1,51 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { HomeComponent } from './home.component';
 
 describe('HomeComponent', () => {
-  let component: HomeComponent;
-  let fixture: ComponentFixture<HomeComponent>;
-
-  beforeEach(async(() => {
+  beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [ HomeComponent ]
+      imports: [RouterTestingModule],
+      declarations: [HomeComponent]
     })
-    .compileComponents();
-  }));
+  );
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(HomeComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('display the title and quote', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    const element = fixture.nativeElement;
+
+    const title = element.querySelector('h1');
+    expect(title)
+      .withContext('You should have an `h1` element to display the title')
+      .not.toBeNull();
+    expect(title.textContent).toContain('Ponyracer');
+    expect(title.textContent)
+      .withContext('You should have the `small` element inside the `h1` element')
+      .toContain('Always a pleasure to bet on ponies');
+
+    const subtitle = element.querySelector('small');
+    expect(subtitle)
+      .withContext('You should have a `small` element to display the subtitle')
+      .not.toBeNull();
+    expect(subtitle.textContent).toContain('Always a pleasure to bet on ponies');
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('display a link to go the races', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    const element = fixture.nativeElement;
+
+    fixture.detectChanges();
+
+    const button = element.querySelector('a');
+    expect(button)
+      .withContext('You should have an `a` element to display the link to the races')
+      .not.toBeNull();
+    expect(button.textContent)
+      .withContext('The link should have a text')
+      .toContain('Races');
+    expect(button.getAttribute('href'))
+      .withContext('The URL of the link is not correct. Maybe you forgot to use `routerLink`?')
+      .toBe('/races');
   });
 });
