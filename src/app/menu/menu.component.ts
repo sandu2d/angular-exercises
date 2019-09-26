@@ -7,14 +7,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MenuComponent implements OnInit {
 
-  public navbarCollapsed = true;
+  navbarCollapsed = true;
 
   constructor() { }
 
   ngOnInit() {
   }
 
-  public toggleNavbar() {
+  toggleNavbar() {
     this.navbarCollapsed = !this.navbarCollapsed;
   }
 
