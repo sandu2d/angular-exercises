@@ -1,35 +1,38 @@
-import { fakeAsync, tick, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { RaceService } from './race.service';
 import { RaceModel } from './models/race.model';
 
 describe('RaceService', () => {
-  let service: RaceService;
+  let raceService: RaceService;
+  let http: HttpTestingController;
 
-  beforeEach(() => TestBed.configureTestingModule({}));
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule]
+    })
+  );
 
-  beforeEach(() => (service = TestBed.get(RaceService)));
+  beforeEach(() => {
+    raceService = TestBed.get(RaceService);
+    http = TestBed.get(HttpTestingController);
+  });
 
-  it('should list races', fakeAsync(() => {
-    let fetchedRaces: Array<RaceModel> = [];
-    const observable = service.list();
-    observable.subscribe((races: Array<RaceModel>) => (fetchedRaces = races));
+  afterAll(() => http.verify());
 
-    tick(200);
+  it('should return an Observable of 3 races', () => {
+    // fake response
+    const hardcodedRaces = [{ name: 'Paris' }, { name: 'Tokyo' }, { name: 'Lyon' }] as Array<RaceModel>;
 
-    expect(fetchedRaces.length)
-      .withContext('The service should return the races after a 500ms delay')
-      .toBe(0);
+    let actualRaces: Array<RaceModel> = [];
+    raceService.list().subscribe((races: Array<RaceModel>) => (actualRaces = races));
 
-    tick(400);
+    http.expectOne('http://ponyracer.ninja-squad.com/api/races?status=PENDING').flush(hardcodedRaces);
 
-    expect(fetchedRaces.length)
-      .withContext('The service should return two races in an Observable for the `list()` method after 500ms')
-      .toBe(2);
-    const paris = fetchedRaces[0];
-    expect(paris.name).toBe('Paris');
-    expect(paris.ponies.length)
-      .withContext('The races should include the ponies')
-      .toBe(5);
-  }));
+    expect(actualRaces.length)
+      .withContext('The `list` method should return an array of RaceModel wrapped in an Observable')
+      .not.toBe(0);
+    expect(actualRaces).toEqual(hardcodedRaces);
+  });
 });

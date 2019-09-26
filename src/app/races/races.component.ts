@@ -12,7 +12,9 @@ export class RacesComponent implements OnInit {
   races: Array<RaceModel>;
 
   constructor(raceService: RaceService) {
-    raceService.list().subscribe(races => this.races = races);
+    raceService.list().subscribe(races => {
+      this.races = races;
+    });
   }
 
   ngOnInit() { }
