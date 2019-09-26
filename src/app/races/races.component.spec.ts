@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 
 import { RacesComponent } from './races.component';
+import { RaceComponent } from '../race/race.component';
 import { RaceService } from '../race.service';
 import { RaceModel } from '../models/race.model';
 
@@ -10,7 +12,7 @@ describe('RacesComponent', () => {
 
   beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [RacesComponent],
+      declarations: [RacesComponent, RaceComponent],
       providers: [{ provide: RaceService, useValue: service }]
     })
   );
@@ -37,14 +39,10 @@ describe('RacesComponent', () => {
     expect(fixture.componentInstance.races[3].name).toBe('Tokyo');
     expect(fixture.componentInstance.races[4].name).toBe('Casablanca');
 
-    const element = fixture.nativeElement;
-    const raceNames = element.querySelectorAll('h2');
+    const debugElement = fixture.debugElement;
+    const raceNames = debugElement.queryAll(By.directive(RaceComponent));
     expect(raceNames.length)
-      .withContext('You should have four `h2` elements')
+      .withContext('You should have four `RaceComponent` displayed')
       .toBe(4);
-    expect(raceNames[0].textContent).toContain('Lyon');
-    expect(raceNames[1].textContent).toContain('Los Angeles');
-    expect(raceNames[2].textContent).toContain('Sydney');
-    expect(raceNames[3].textContent).toContain('Tokyo');
   });
 });
