@@ -1,3 +1,3 @@
-export default interface RaceModel {
+export interface RaceModel {
     name: string;
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import RaceModel from '../models/race.model';
+import { RaceModel } from '../models/race.model';
 import { RaceService } from '../race.service';
 
 @Component({
@@ -11,8 +11,8 @@ export class RacesComponent implements OnInit {
 
   races: Array<RaceModel>;
 
-  constructor(service: RaceService) {
-    this.races = service.list();
+  constructor(raceService: RaceService) {
+    raceService.list().subscribe(races => this.races = races);
   }
 
   ngOnInit() { }
