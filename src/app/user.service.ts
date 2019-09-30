@@ -17,4 +17,11 @@ export class UserService {
       birthYear
     });
   }
+
+  authenticate(creditials: {login: string, password: string}): Observable<any> {
+    return this.http.post(this.apiURL + '/api/users/authentication', {
+      login: creditials.login,
+      password: creditials.password
+    });
+  }
 }
