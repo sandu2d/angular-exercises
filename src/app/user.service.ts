@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { UserModel } from './models/user.model';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   apiURL = 'http://ponyracer.ninja-squad.com';
+  userEvents = new Subject<UserModel>();
 
   constructor(private http: HttpClient) {}
 
@@ -18,10 +21,16 @@ export class UserService {
     });
   }
 
-  authenticate(creditials: {login: string, password: string}): Observable<any> {
+  authenticate(creditials: {login: string, password: string}): Observable<any>  {
     return this.http.post(this.apiURL + '/api/users/authentication', {
       login: creditials.login,
       password: creditials.password
-    });
+    })
+    .pipe(tap(user => this.userEvents.next(user as {
+      id: number,
+      login: string,
+      money: number,
+      registrationInstant: string
+    })));
   }
 }
