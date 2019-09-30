@@ -1,1 +1,1 @@
-{"pack":"40","id":11,"title":"Register form","specs":[{"name":"src/app/home/home.component.spec.ts","hash":"31a276b156c3db340e864a217eb2c7b9eb793184"},{"name":"src/app/register/register.component.spec.ts","hash":"1aa8b6c972b8f6ca8fc2b0240c55c4162e65ae80"}]}
+{"pack":"40","id":12,"title":"Custom validators in forms","specs":[{"name":"src/app/register/register.component.spec.ts","hash":"fad08864115ee079e616f6027525d1df25d82798"},{"name":"src/app/user.service.spec.ts","hash":"c7670dc7a46d1e600c16f7982f5c00bf315a4c57"}]}
