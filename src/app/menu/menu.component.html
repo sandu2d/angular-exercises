@@ -4,7 +4,7 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <div id="navbar" class="navbar-collapse" [class.collapse]="this.navbarCollapsed">
-    <ul class="navbar-nav mr-auto">
+    <ul class="navbar-nav mr-auto" *ngIf="this.user">
       <li class="nav-item">
         <a class="nav-link" routerLink="races">Races</a>
       </li>

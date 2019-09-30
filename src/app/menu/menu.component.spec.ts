@@ -83,6 +83,14 @@ describe('MenuComponent', () => {
 
     const links = fixture.debugElement.queryAll(By.directive(RouterLinkWithHref));
     expect(links.length)
+      .withContext('You should have only one routerLink to the home when the user is not logged')
+      .toBe(1);
+
+    fixture.componentInstance.user = { login: 'cedric', money: 200 } as UserModel;
+    fixture.detectChanges();
+
+    const linksAfterLogin = fixture.debugElement.queryAll(By.directive(RouterLinkWithHref));
+    expect(linksAfterLogin.length)
       .withContext('You should have two routerLink: one to the races, one to the home')
       .toBe(2);
   });
