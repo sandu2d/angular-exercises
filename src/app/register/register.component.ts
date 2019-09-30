@@ -21,16 +21,10 @@ export class RegisterComponent implements OnInit {
 
   registrationFailed = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private userService: UserService,
-    private router: Router
-  ) {}
+  constructor(private fb: FormBuilder, private userService: UserService, private router: Router) {}
 
   static passwordMatch(fg: FormGroup) {
-    return fg.controls.password.value !== fg.controls.confirmPassword.value
-      ? { matchingError: true }
-      : null;
+    return fg.controls.password.value !== fg.controls.confirmPassword.value ? { matchingError: true } : null;
   }
 
   ngOnInit() {
@@ -39,14 +33,17 @@ export class RegisterComponent implements OnInit {
     this.birthYearCtrl = this.fb.control('', [Validators.required, Validators.min(1900), Validators.max(new Date().getFullYear())]);
     this.confirmPasswordCtrl = this.fb.control('', Validators.required);
 
-    this.passwordForm = this.fb.group({
-      password: this.passwordCtrl,
-      confirmPassword: this.confirmPasswordCtrl
-    }, {
-      validator: (formGroup: FormGroup) => {
-        return RegisterComponent.passwordMatch(formGroup);
+    this.passwordForm = this.fb.group(
+      {
+        password: this.passwordCtrl,
+        confirmPassword: this.confirmPasswordCtrl
+      },
+      {
+        validator: (formGroup: FormGroup) => {
+          return RegisterComponent.passwordMatch(formGroup);
+        }
       }
-    });
+    );
 
     this.userForm = this.fb.group({
       login: this.loginCtrl,
@@ -56,16 +53,14 @@ export class RegisterComponent implements OnInit {
   }
 
   register() {
-    this.userService.register(
-      this.loginCtrl.value,
-      this.passwordCtrl.value,
-      this.birthYearCtrl.value
-    ).subscribe(user => {
-      this.user = user;
-      this.router.navigate(['/']);
-    },
-    error => {
-      this.registrationFailed = true;
-    });
+    this.userService.register(this.loginCtrl.value, this.passwordCtrl.value, this.birthYearCtrl.value).subscribe(
+      user => {
+        this.user = user;
+        this.router.navigate(['/']);
+      },
+      error => {
+        this.registrationFailed = true;
+      }
+    );
   }
 }

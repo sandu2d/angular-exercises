@@ -8,7 +8,6 @@ import { RaceService } from '../race.service';
   styleUrls: ['./races.component.css']
 })
 export class RacesComponent implements OnInit {
-
   races: Array<RaceModel>;
 
   constructor(raceService: RaceService) {
@@ -17,6 +16,5 @@ export class RacesComponent implements OnInit {
     });
   }
 
-  ngOnInit() { }
-
+  ngOnInit() {}
 }

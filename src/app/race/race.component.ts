@@ -8,18 +8,14 @@ import { FromNowPipe } from '../from-now.pipe';
   styleUrls: ['./race.component.css'],
   providers: [FromNowPipe]
 })
-
 export class RaceComponent implements OnInit {
-
   @Input() raceModel: RaceModel;
 
-  constructor(private fromNow: FromNowPipe) { }
+  constructor(private fromNow: FromNowPipe) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   getStartDateTime() {
     return this.fromNow.transform(this.raceModel.startInstant);
   }
-
 }
