@@ -13,7 +13,7 @@ import { RaceModel } from '../models/race.model';
 import { PonyModel } from '../models/pony.model';
 
 describe('BetComponent', () => {
-  const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['get', 'bet']);
+  const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['get', 'bet', 'cancelBet']);
   const race = { id: 1, name: 'Paris' } as RaceModel;
   fakeRaceService.get.and.returnValue(of(race));
   const fakeActivatedRoute = { snapshot: { paramMap: convertToParamMap({ raceId: 1 }) } };
@@ -163,5 +163,37 @@ describe('BetComponent', () => {
     const element = fixture.nativeElement;
     const message = element.querySelector('.alert.alert-danger');
     expect(message.textContent).toContain('The race is already started or finished');
+  });
+
+  it('should cancel a bet', () => {
+    const fixture = TestBed.createComponent(BetComponent);
+    fakeRaceService.cancelBet.and.returnValue(of(null));
+
+    const component = fixture.componentInstance;
+    component.raceModel = { id: 2, betPonyId: 1, name: 'Lyon', ponies: [], startInstant: '2016-02-18T08:02:00Z' };
+
+    const pony = { id: 1 } as PonyModel;
+    component.betOnPony(pony);
+
+    expect(fakeRaceService.cancelBet).toHaveBeenCalledWith(2);
+    expect(component.raceModel.betPonyId).toBeFalsy();
+  });
+
+  it('should display a message if canceling a bet fails', () => {
+    const fixture = TestBed.createComponent(BetComponent);
+    fixture.detectChanges();
+
+    fakeRaceService.cancelBet.and.callFake(() => throwError(new Error('Oops')));
+
+    const component = fixture.componentInstance;
+    component.raceModel = { id: 2, betPonyId: 1, name: 'Lyon', ponies: [], startInstant: '2016-02-18T08:02:00Z' };
+    expect(component.betFailed).toBe(false);
+
+    const pony = { id: 1 } as PonyModel;
+    component.betOnPony(pony);
+
+    expect(fakeRaceService.cancelBet).toHaveBeenCalledWith(2);
+    expect(component.raceModel.betPonyId).toBe(1);
+    expect(component.betFailed).toBe(true);
   });
 });

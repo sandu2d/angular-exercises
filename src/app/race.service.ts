@@ -21,4 +21,8 @@ export class RaceService {
   get(id: number): Observable<any> {
     return this.http.get(environment.baseUrl + '/api/races/' + id);
   }
+
+  cancelBet(raceId: number) {
+    return this.http.delete(environment.baseUrl + '/api/races/' + raceId + '/bets');
+  }
 }

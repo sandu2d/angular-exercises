@@ -1,1 +1,1 @@
-{"pack":"40","id":19,"title":"Bet on a pony","specs":[{"name":"src/app/bet/bet.component.spec.ts","hash":"3ae24cd508374f58955d9d913c5c220609876e5a"},{"name":"src/app/race.service.spec.ts","hash":"ca38085f82322aaf599c3f389f45d3cea780ba21"},{"name":"src/app/races/races.component.spec.ts","hash":"11c6eba95a35ed1513be23c2c262ab788b09563d"}]}
+{"pack":"40","id":20,"title":"Cancel a bet","specs":[{"name":"src/app/bet/bet.component.spec.ts","hash":"ccd3b7fc3b4c33ed208f095d372c5253d45dc57d"},{"name":"src/app/race.service.spec.ts","hash":"c9f9d3121ee80c707b6049530d31521a95c8b849"}]}
