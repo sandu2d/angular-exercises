@@ -13,4 +13,12 @@ export class RaceService {
   list(): Observable<any> {
     return this.http.get(environment.baseUrl + '/api/races?status=PENDING');
   }
+
+  bet(raceId: number, ponyId: number): Observable<any> {
+    return this.http.post(environment.baseUrl + '/api/races/' + raceId + '/bets', { ponyId });
+  }
+
+  get(id: number): Observable<any> {
+    return this.http.get(environment.baseUrl + '/api/races/' + id);
+  }
 }

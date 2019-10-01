@@ -1,0 +1,9 @@
+<div *ngIf="raceModel">
+    <h1>{{ raceModel.name }}</h1>
+    <p>{{ getStartDateTime() }}</p>
+    <ul *ngFor="let pony of raceModel.ponies">
+        <div class="col-12 col-md-2" [class.selected]="isPonySelected(pony)"><pr-pony [ponyModel]="pony" (ponyClicked)="betOnPony($event)"></pr-pony></div>
+    </ul>
+    <div *ngIf="betFailed" class="alert alert-danger">The race is already started or finished</div>
+</div>
+  
