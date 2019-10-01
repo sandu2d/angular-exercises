@@ -1,1 +1,1 @@
-{"pack":"40","id":17,"title":"Logout","specs":[{"name":"src/app/menu/menu.component.spec.ts","hash":"446daa485fb58f07ff5b056fd5d8b7ded74ca610"},{"name":"src/app/user.service.spec.ts","hash":"ca9ac343553b837f881424cd91b1977bab8d310f"}]}
+{"pack":"40","id":18,"title":"HTTP with authentication","specs":[{"name":"src/app/jwt-interceptor.service.spec.ts","hash":"0cb4d20ae35cfba3ded615d03658e7d5851eaa0b"},{"name":"src/app/user.service.spec.ts","hash":"04cf09e977d4c372d282fce8455474a1845f01af"}]}
