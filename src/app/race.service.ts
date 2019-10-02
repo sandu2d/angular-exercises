@@ -36,4 +36,8 @@ export class RaceService {
       map(race => race.ponies)
     );
   }
+
+  boost(raceId: number, ponyId: number): Observable<any> {
+    return this.http.post(environment.baseUrl + '/api/races/' + raceId + '/boosts', { ponyId });
+  }
 }

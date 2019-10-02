@@ -1,4 +1,4 @@
-import { async, TestBed } from '@angular/core/testing';
+import { async, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
 import { By } from '@angular/platform-browser';
@@ -12,7 +12,7 @@ import { PonyComponent } from '../pony/pony.component';
 import { FromNowPipe } from '../from-now.pipe';
 
 describe('LiveComponent', () => {
-  const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['get', 'live']);
+  const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['get', 'live', 'boost']);
 
   beforeEach(() =>
     TestBed.configureTestingModule({
@@ -25,6 +25,7 @@ describe('LiveComponent', () => {
   beforeEach(() => {
     fakeRaceService.get.calls.reset();
     fakeRaceService.live.calls.reset();
+    fakeRaceService.boost.calls.reset();
   });
 
   it('should initialize the array of positions with an empty array', () => {
@@ -417,5 +418,321 @@ describe('LiveComponent', () => {
     fixture.detectChanges();
     const alert = element.querySelector('div.alert.alert-danger');
     expect(alert.textContent).toContain('A problem occurred during the live.');
+  });
+
+  it('should listen to click events on ponies in the template', () => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [
+        { id: 1, name: 'Sunny Sunday', color: 'BLUE' },
+        { id: 2, name: 'Pinkie Pie', color: 'GREEN' },
+        { id: 3, name: 'Awesome Fridge', color: 'YELLOW' }
+      ],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    const positions = new Subject<Array<PonyWithPositionModel>>();
+    fakeRaceService.live.and.returnValue(positions);
+
+    const fixture = TestBed.createComponent(LiveComponent);
+    fixture.detectChanges();
+
+    spyOn(fixture.componentInstance, 'onClick');
+
+    // let's start the race
+    const poniesWithPositions = [
+      { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 },
+      { id: 2, name: 'Pinkie Pie', color: 'GREEN', position: 12 },
+      { id: 3, name: 'Awesome Fridge', color: 'YELLOW', position: 6 }
+    ];
+    positions.next(poniesWithPositions);
+    fixture.detectChanges();
+
+    // when clicking on the first pony
+    const ponyComponent = fixture.debugElement.query(By.directive(PonyComponent));
+    expect(ponyComponent)
+      .withContext('You should display a `PonyComponent` for each pony')
+      .not.toBeNull();
+    ponyComponent.triggerEventHandler('ponyClicked', {});
+
+    // then the click handler should have been called with the first pony
+    expect(fixture.componentInstance.onClick).toHaveBeenCalledWith(poniesWithPositions[0]);
+  });
+
+  it('should emit an event with the pony when a pony is clicked', () => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    fakeRaceService.live.and.returnValue(EMPTY);
+
+    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    liveComponent.ngOnInit();
+
+    spyOn(liveComponent.clickSubject, 'next');
+
+    const pony = { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 };
+
+    // when a click is received
+    liveComponent.onClick(pony);
+
+    // then we should emit the pony on the subject
+    expect(liveComponent.clickSubject.next).toHaveBeenCalledWith(pony);
+  });
+
+  it('should buffer clicks over a second and call the boost method', fakeAsync(() => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    fakeRaceService.boost.and.returnValue(of(race));
+    fakeRaceService.live.and.returnValue(EMPTY);
+
+    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    liveComponent.ngOnInit();
+    tick();
+
+    const pony = { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 };
+
+    // when 5 clicks are emitted in a second
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+
+    // then we should call the boost method
+    expect(fakeRaceService.boost).toHaveBeenCalledWith(race.id, pony.id);
+    fakeRaceService.boost.calls.reset();
+
+    // when 5 clicks are emitted over 2 seconds
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+
+    // then we should not call the boost method
+    expect(fakeRaceService.boost).not.toHaveBeenCalled();
+  }));
+
+  it('should filter click buffer that are not at least 5', fakeAsync(() => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    fakeRaceService.boost.and.returnValue(of(race));
+    fakeRaceService.live.and.returnValue(EMPTY);
+
+    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    liveComponent.ngOnInit();
+    tick();
+
+    const pony = { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 };
+    const pony2 = { id: 2, name: 'Black Friday', color: 'GREEN', position: 11 };
+
+    // when 4 clicks are emitted in a second
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+
+    // then we should not call the boost method
+    expect(fakeRaceService.boost).not.toHaveBeenCalled();
+
+    // when 5 clicks are emitted over a second on two ponies
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony2);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony2);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+
+    // then we should not call the boost method
+    expect(fakeRaceService.boost).not.toHaveBeenCalled();
+  }));
+
+  it('should throttle repeated boosts', fakeAsync(() => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    fakeRaceService.boost.and.returnValue(of(race));
+    fakeRaceService.live.and.returnValue(EMPTY);
+
+    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    liveComponent.ngOnInit();
+    tick();
+
+    const pony = { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 };
+
+    // when 5 clicks are emitted in a second
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(800);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(200);
+
+    // then we should call the boost method
+    expect(fakeRaceService.boost).toHaveBeenCalled();
+    fakeRaceService.boost.calls.reset();
+
+    // when 2 other clicks are emitted
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(800);
+
+    // then we should not call the boost method with the throttling
+    expect(fakeRaceService.boost).not.toHaveBeenCalled();
+
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(200);
+
+    // we should call it a bit later
+    expect(fakeRaceService.boost).toHaveBeenCalled();
+    discardPeriodicTasks();
+  }));
+
+  it('should catch a boost error', fakeAsync(() => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    const boost = new Subject<RaceModel>();
+    fakeRaceService.boost.and.returnValue(boost);
+    fakeRaceService.live.and.returnValue(EMPTY);
+
+    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    liveComponent.ngOnInit();
+    tick();
+
+    const pony = { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 };
+
+    // when 5 clicks are emitted in a second
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+
+    // then we should call the boost method
+    expect(fakeRaceService.boost).toHaveBeenCalled();
+    fakeRaceService.boost.calls.reset();
+    boost.error('You should catch a potential error from the boost method with a `catch` operator');
+
+    // when 5 other clicks are emitted
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    liveComponent.clickSubject.next(pony);
+    tick(1000);
+
+    // we should call it again if the previous error has been handled
+    expect(fakeRaceService.boost).toHaveBeenCalled();
+    discardPeriodicTasks();
+  }));
+
+  it('should use a trackBy method', () => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    fakeActivatedRoute.snapshot.params = { raceId: 1 };
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'RUNNING',
+      ponies: [],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeRaceService.get.and.returnValue(of(race));
+    const positions = new Subject<Array<PonyWithPositionModel>>();
+    fakeRaceService.live.and.returnValue(positions);
+    fakeRaceService.boost.and.returnValue(of(race));
+
+    const fixture = TestBed.createComponent(LiveComponent);
+    fixture.detectChanges();
+
+    const poniesWithPositions = [
+      { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 10 },
+      { id: 2, name: 'Pinkie Pie', color: 'GREEN', position: 12 },
+      { id: 3, name: 'Awesome Fridge', color: 'YELLOW', position: 6 }
+    ];
+
+    const trackByResult = fixture.componentInstance.ponyById(1, poniesWithPositions[0]);
+    expect(trackByResult)
+      .withContext('The ponyById method should return the id of the pony')
+      .toBe(1);
+
+    // we send some ponies
+    positions.next(poniesWithPositions);
+    fixture.detectChanges();
+
+    const ponyComponent = fixture.nativeElement.querySelector('div.pony-wrapper');
+    expect(ponyComponent)
+      .withContext('You should display a `PonyComponent` for each pony')
+      .not.toBeNull();
+
+    // then the same ponies with other positions
+    const otherPoniesWithPositions = [
+      { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 14 },
+      { id: 2, name: 'Pinkie Pie', color: 'GREEN', position: 18 },
+      { id: 3, name: 'Awesome Fridge', color: 'YELLOW', position: 9 }
+    ];
+
+    positions.next(otherPoniesWithPositions);
+    fixture.detectChanges();
+    const otherPonyComponent = fixture.nativeElement.querySelector('div.pony-wrapper');
+    expect(ponyComponent)
+      .withContext('You should use trackBy in your template')
+      .toBe(otherPonyComponent);
   });
 });

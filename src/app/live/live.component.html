@@ -28,9 +28,14 @@
                 <span class="fa fa-flag" style="font-size: x-large;"></span>
             </div>
             <div style="width: 95%; border-right: 3px dotted lightgray;">
-                <ul *ngFor="let pony of poniesWithPosition" class="pony-wrapper" [class.selected]="pony.id === raceModel.betPonyId" [style.marginLeft.%]="pony.position - 10">
-                    <pr-pony [ponyModel]="pony" [isRunning]="true"></pr-pony>
-                </ul>
+                <div *ngFor="let pony of poniesWithPosition; trackBy: ponyById" class="pony-wrapper" [class.selected]="pony.id === raceModel.betPonyId" [style.marginLeft.%]="pony.position - 10">
+                    <pr-pony 
+                        [ponyModel]="pony"
+                        [isRunning]="true"
+                        [isBoosted]="pony.boosted"
+                        (ponyClicked)="onClick(pony)"
+                    ></pr-pony>
+                </div>
             </div>
         </div>
     </div>
