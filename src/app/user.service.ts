@@ -65,4 +65,8 @@ export class UserService {
   scoreUpdates(userId: number) {
     return this.ws.connect<UserModel>(`/player/${userId}`);
   }
+
+  isLoggedIn(): boolean {
+    return window.localStorage.getItem('rememberMe') ? true : false;
+  }
 }

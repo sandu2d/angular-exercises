@@ -17,6 +17,7 @@ import { LoginComponent } from './login/login.component';
 import { JwtInterceptorService } from './jwt-interceptor.service';
 import { BetComponent } from './bet/bet.component';
 import { LiveComponent } from './live/live.component';
+import { LoggedInGuard } from './logged-in.guard';
 
 @NgModule({
   declarations: [
@@ -40,7 +41,8 @@ import { LiveComponent } from './live/live.component';
     ReactiveFormsModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useExisting: JwtInterceptorService, multi: true }
+    { provide: HTTP_INTERCEPTORS, useExisting: JwtInterceptorService, multi: true },
+    LoggedInGuard
   ],
   bootstrap: [AppComponent]
 })
