@@ -27,6 +27,7 @@
     "moment": "^2.24.0",
     "rxjs": "6.5.2",
     "tslib": "1.10.0",
+    "webstomp-client": "1.2.6",
     "zone.js": "0.10.2"
   },
   "devDependencies": {
