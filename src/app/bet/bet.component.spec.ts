@@ -1,6 +1,6 @@
 import { async, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { of, throwError } from 'rxjs';
 import * as moment from 'moment';
@@ -13,10 +13,9 @@ import { RaceModel } from '../models/race.model';
 import { PonyModel } from '../models/pony.model';
 
 describe('BetComponent', () => {
-  const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['get', 'bet', 'cancelBet']);
+  const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['bet', 'cancelBet']);
   const race = { id: 1, name: 'Paris' } as RaceModel;
-  fakeRaceService.get.and.returnValue(of(race));
-  const fakeActivatedRoute = { snapshot: { paramMap: convertToParamMap({ raceId: 1 }) } };
+  const fakeActivatedRoute = { snapshot: { data: { race } } };
 
   beforeEach(() =>
     TestBed.configureTestingModule({
@@ -136,13 +135,12 @@ describe('BetComponent', () => {
     const component = fixture.componentInstance;
     expect(component.raceModel).toBeUndefined();
 
-    fakeActivatedRoute.snapshot.paramMap = convertToParamMap({ raceId: 1 });
     component.ngOnInit();
 
     expect(component.raceModel)
       .withContext('`ngOnInit` should initialize the `raceModel`')
-      .toBe(race);
-    expect(fakeRaceService.get).toHaveBeenCalledWith(1);
+      .not.toBeUndefined();
+    expect(component.raceModel).toEqual(race);
   });
 
   it('should display an error message if bet failed', () => {

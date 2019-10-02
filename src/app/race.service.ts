@@ -5,7 +5,7 @@ import { environment } from '../environments/environment';
 import { PonyWithPositionModel } from './models/pony.model';
 import { map, takeWhile } from 'rxjs/operators';
 import { WsService } from './ws.service';
-import { LiveRaceModel } from './models/race.model';
+import { LiveRaceModel, RaceModel } from './models/race.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +14,9 @@ export class RaceService {
 
   constructor(private http: HttpClient, private ws: WsService) {}
 
-  list(): Observable<any> {
-    return this.http.get(environment.baseUrl + '/api/races?status=PENDING');
+  list(status: 'PENDING' | 'RUNNING' | 'FINISHED'): Observable<Array<RaceModel>> {
+    const params = { status };
+    return this.http.get<Array<RaceModel>>(`${environment.baseUrl}/api/races`, { params });
   }
 
   bet(raceId: number, ponyId: number): Observable<any> {

@@ -1,4 +1,11 @@
-<div *ngFor="let race of races | slice: 0:4">
-  <pr-race [raceModel]="race"></pr-race>
-  <a [routerLink]="race.id" class="btn btn-primary">Bet on {{ race.name }}</a>
-</div>
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item">
+    <a class="nav-link" routerLinkActive="active" routerLink="pending">Pending races</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" routerLinkActive="active" routerLink="finished">Finished races</a>
+  </li>
+</ul>
+
+<router-outlet></router-outlet>
+  

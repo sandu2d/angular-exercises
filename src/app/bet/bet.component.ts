@@ -19,9 +19,7 @@ export class BetComponent implements OnInit {
   constructor(private route: ActivatedRoute, private raceService: RaceService, private fromNow: FromNowPipe) { }
 
   ngOnInit() {
-    this.raceService.get(Number(this.route.snapshot.paramMap.get('raceId'))).subscribe(race => {
-      this.raceModel = race;
-    });
+    this.raceModel = this.route.snapshot.data.race;
   }
 
   getStartDateTime() {
