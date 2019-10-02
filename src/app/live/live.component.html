@@ -1,0 +1,6 @@
+<div *ngIf="raceModel">
+    <h1>{{ raceModel.name }}</h1>
+    <div *ngFor="let pony of poniesWithPosition" class="pony-wrapper" [style.marginLeft.%]="pony.position - 10">
+        <pr-pony [isRunning]="true" [ponyModel]="pony"></pr-pony>
+    </div>
+</div>

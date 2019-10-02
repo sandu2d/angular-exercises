@@ -1,6 +1,7 @@
 <div *ngIf="raceModel">
     <h1>{{ raceModel.name }}</h1>
     <p>{{ getStartDateTime() }}</p>
+    <a class="btn btn-warning" [routerLink]="['/races', raceModel.id, 'live']">Watch live!</a>
     <ul *ngFor="let pony of raceModel.ponies">
         <div class="col-12 col-md-2" [class.selected]="isPonySelected(pony)"><pr-pony [ponyModel]="pony" (ponyClicked)="betOnPony($event)"></pr-pony></div>
     </ul>
