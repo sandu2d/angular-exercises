@@ -2,9 +2,9 @@
   <div class="col-md-4 offset-md-4">
     <h1>Sign up</h1>
 
-    <pr-alert *ngIf="registrationFailed" type="danger" dismissible="false">
+    <ngb-alert *ngIf="registrationFailed" type="danger" dismissible="false">
       Try again with another login.
-    </pr-alert>
+    </ngb-alert>
 
     <form (ngSubmit)="register()" [formGroup]="userForm">
       <div class="form-group">

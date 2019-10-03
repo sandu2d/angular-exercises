@@ -2,28 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { RaceModel } from '../models/race.model';
 import { ActivatedRoute } from '@angular/router';
 import { RaceService } from '../race.service';
-import { FromNowPipe } from '../from-now.pipe';
 import { PonyModel } from '../models/pony.model';
 
 @Component({
   selector: 'pr-bet',
   templateUrl: './bet.component.html',
-  styleUrls: ['./bet.component.css'],
-  providers: [FromNowPipe]
+  styleUrls: ['./bet.component.css']
 })
 export class BetComponent implements OnInit {
 
   raceModel: RaceModel;
   betFailed = false;
 
-  constructor(private route: ActivatedRoute, private raceService: RaceService, private fromNow: FromNowPipe) { }
+  constructor(private route: ActivatedRoute, private raceService: RaceService) { }
 
   ngOnInit() {
     this.raceModel = this.route.snapshot.data.race;
-  }
-
-  getStartDateTime() {
-    return this.fromNow.transform(this.raceModel.startInstant);
   }
 
   betOnPony(pony: PonyModel) {

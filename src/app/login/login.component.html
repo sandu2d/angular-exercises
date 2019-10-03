@@ -2,9 +2,9 @@
     <div class="col-md-4 offset-md-4">
         <h1>Log in</h1>
 
-        <pr-alert *ngIf="authenticationFailed" type="danger" (close)="authenticationFailed = false">
+        <ngb-alert *ngIf="authenticationFailed" type="danger" (close)="authenticationFailed = false">
             Nope, try again.
-        </pr-alert>
+        </ngb-alert>
 
         <form (ngSubmit)="authenticate()" #loginForm="ngForm">
         <div class="form-group">

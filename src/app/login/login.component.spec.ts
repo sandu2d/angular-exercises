@@ -1,13 +1,13 @@
 import { async, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
+import { NgbAlert, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
 
 import { UsersModule } from '../users/users.module';
 import { LoginComponent } from './login.component';
 import { UserService } from '../user.service';
 import { UserModel } from '../models/user.model';
-import { AlertComponent } from '../shared/alert/alert.component';
 
 describe('LoginComponent', () => {
   const fakeRouter = jasmine.createSpyObj<Router>('Router', ['navigate']);
@@ -15,7 +15,7 @@ describe('LoginComponent', () => {
 
   beforeEach(() =>
     TestBed.configureTestingModule({
-      imports: [UsersModule],
+      imports: [UsersModule, NgbAlertModule],
       providers: [{ provide: UserService, useValue: fakeUserService }, { provide: Router, useValue: fakeRouter }]
     })
   );
@@ -221,9 +221,9 @@ describe('LoginComponent', () => {
     fixture.detectChanges();
 
     const element = fixture.debugElement;
-    const alert = element.query(By.directive(AlertComponent));
+    const alert = element.query(By.directive(NgbAlert));
     expect(alert)
-      .withContext('You should have an AlertComponent to display an error message')
+      .withContext('You should have an NgbAlert to display an error message')
       .not.toBeNull();
     expect(alert.nativeElement.textContent).toContain('Nope, try again');
     expect(alert.componentInstance.type)
@@ -233,7 +233,7 @@ describe('LoginComponent', () => {
     // close the alert
     alert.componentInstance.closeHandler();
     fixture.detectChanges();
-    expect(element.query(By.directive(AlertComponent)))
+    expect(element.query(By.directive(NgbAlert)))
       .withContext('The alert should disappear when closed')
       .toBeNull();
   });

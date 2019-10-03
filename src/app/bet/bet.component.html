@@ -1,9 +1,9 @@
 <h1>{{ raceModel.name }}</h1>
 <p>{{ raceModel.startInstant | fromNow }}</p>
 <a class="btn btn-primary" [routerLink]="['/races', raceModel.id, 'live']">Watch live!</a>
-<pr-alert *ngIf="betFailed" (close)="betFailed = false" type="danger">
+<ngb-alert *ngIf="betFailed" (close)="betFailed = false" type="danger">
   The race is already started or finished
-</pr-alert>
+</ngb-alert>
 <div class="py-2">Click to bet on your favorite pony</div>
 <div class="row">
   <div *ngFor="let pony of raceModel.ponies" class="col-12 col-md-2" [ngClass]="{ selected: isPonySelected(pony) }">
