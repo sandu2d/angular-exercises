@@ -69,4 +69,8 @@ export class UserService {
   isLoggedIn(): boolean {
     return window.localStorage.getItem('rememberMe') ? true : false;
   }
+
+  getMoneyHistory(): Observable<any> {
+    return this.http.get(`${environment.baseUrl}/api/money/history`);
+  }
 }

@@ -10,11 +10,11 @@
       </li>
     </ul>
     <div class="nav navbar-nav" *ngIf="this.user">
-        <span class="nav-item navbar-text mr-2">
+        <a class="nav-item nav-link mr-2" routerLink="/users/money/history">
           {{ user.login }}
           <span class="fa fa-star"></span>
           {{ user.money }}
-        </span>
+        </a>
         <button type="button" class="btn btn-link navbar-btn" (click)="logout($event)">
           <span class="fa fa-power-off"></span>
         </button>

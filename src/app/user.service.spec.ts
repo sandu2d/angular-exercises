@@ -5,6 +5,7 @@ import { environment } from '../environments/environment';
 import { UserService } from './user.service';
 import { JwtInterceptorService } from './jwt-interceptor.service';
 import { WsService } from './ws.service';
+import { MoneyHistoryModel } from './models/money-history.model';
 
 describe('UserService', () => {
   let userService: UserService;
@@ -132,5 +133,21 @@ describe('UserService', () => {
     expect(userService.isLoggedIn()).toBeFalsy();
 
     expect(Storage.prototype.getItem).toHaveBeenCalledWith('rememberMe');
+  });
+
+  it('should fetch the money history', () => {
+    const expectedHistory = [{ instant: '2017-08-03T10:40:00Z', money: 10000 }, { instant: '2017-08-04T09:15:00Z', money: 9800 }] as Array<
+      MoneyHistoryModel
+    >;
+
+    let actualHistory;
+    userService.getMoneyHistory().subscribe(history => (actualHistory = history));
+
+    http.expectOne(`${environment.baseUrl}/api/money/history`).flush(expectedHistory);
+
+    expect(actualHistory)
+      .withContext('The observable should emit the money history')
+      .not.toBeUndefined();
+    expect(actualHistory).toEqual(expectedHistory);
   });
 });
