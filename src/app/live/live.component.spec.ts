@@ -1,4 +1,5 @@
 import { async, discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ChangeDetectorRef } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute } from '@angular/router';
 import { By } from '@angular/platform-browser';
@@ -14,17 +15,19 @@ import { PonyComponent } from '../pony/pony.component';
 
 describe('LiveComponent', () => {
   const fakeRaceService = jasmine.createSpyObj<RaceService>('RaceService', ['live', 'boost']);
+  const fakeChangeDetectorRef = jasmine.createSpyObj<ChangeDetectorRef>('ChangeDetectorRef', ['markForCheck']);
 
   beforeEach(() =>
     TestBed.configureTestingModule({
       imports: [RacesModule, RouterTestingModule, NgbAlertModule],
-      providers: [{ provide: RaceService, useValue: fakeRaceService }]
+      providers: [{ provide: RaceService, useValue: fakeRaceService }, { provide: ChangeDetectorRef, useValue: fakeChangeDetectorRef }]
     })
   );
 
   beforeEach(() => {
     fakeRaceService.live.calls.reset();
     fakeRaceService.boost.calls.reset();
+    fakeChangeDetectorRef.markForCheck.calls.reset();
   });
 
   it('should initialize the array of positions with an empty array', () => {
@@ -39,7 +42,7 @@ describe('LiveComponent', () => {
     fakeActivatedRoute.snapshot.data = { race };
     fakeRaceService.live.and.returnValue(of([]));
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     expect(liveComponent.poniesWithPosition)
       .withContext('poniesWithPosition should be initialized with an empty array')
       .not.toBeUndefined();
@@ -58,7 +61,7 @@ describe('LiveComponent', () => {
     fakeActivatedRoute.snapshot.data = { race };
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     expect(liveComponent.raceModel).toBe(race);
@@ -80,7 +83,7 @@ describe('LiveComponent', () => {
     fakeActivatedRoute.snapshot.data = { race };
     fakeRaceService.live.and.returnValue(of([{ id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 0 }]));
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     expect(liveComponent.raceModel).toBe(race);
@@ -105,7 +108,7 @@ describe('LiveComponent', () => {
     fakeActivatedRoute.snapshot.data = { race };
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     expect(liveComponent.raceModel).toBe(race);
@@ -128,7 +131,7 @@ describe('LiveComponent', () => {
     const positions = new Subject<Array<PonyWithPositionModel>>();
     fakeRaceService.live.and.returnValue(positions);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     positions.next([{ id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 0 }]);
@@ -153,7 +156,7 @@ describe('LiveComponent', () => {
     const positions = new Subject<Array<PonyWithPositionModel>>();
     fakeRaceService.live.and.returnValue(positions);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     positions.error(new Error('Oops'));
@@ -175,7 +178,7 @@ describe('LiveComponent', () => {
     const positions = new Subject<Array<PonyWithPositionModel>>();
     fakeRaceService.live.and.returnValue(positions);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     spyOn(liveComponent.positionSubscription, 'unsubscribe');
@@ -199,7 +202,7 @@ describe('LiveComponent', () => {
     const positions = new Subject<Array<PonyWithPositionModel>>();
     fakeRaceService.live.and.returnValue(positions);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     positions.next([
@@ -301,6 +304,8 @@ describe('LiveComponent', () => {
     fakeRaceService.live.and.returnValue(positions);
 
     const fixture = TestBed.createComponent(LiveComponent);
+    const changeDetectorRef = (fixture.componentInstance as any).ref as ChangeDetectorRef;
+    spyOn(changeDetectorRef, 'markForCheck').and.callThrough();
     fixture.detectChanges();
 
     const element = fixture.nativeElement;
@@ -319,6 +324,7 @@ describe('LiveComponent', () => {
     ]);
     fixture.detectChanges();
 
+    expect(changeDetectorRef.markForCheck).toHaveBeenCalled();
     const debugElement = fixture.debugElement;
     const ponyComponents = debugElement.queryAll(By.directive(PonyComponent));
     expect(ponyComponents)
@@ -353,6 +359,8 @@ describe('LiveComponent', () => {
     fakeRaceService.live.and.returnValue(positions);
 
     const fixture = TestBed.createComponent(LiveComponent);
+    const changeDetectorRef = (fixture.componentInstance as any).ref as ChangeDetectorRef;
+    spyOn(changeDetectorRef, 'markForCheck').and.callThrough();
     fixture.detectChanges();
 
     const element = fixture.nativeElement;
@@ -373,6 +381,7 @@ describe('LiveComponent', () => {
     fixture.detectChanges();
 
     // won the bet!
+    expect(changeDetectorRef.markForCheck).toHaveBeenCalled();
     const debugElement = fixture.debugElement;
     const ponyComponents = debugElement.queryAll(By.directive(PonyComponent));
     expect(ponyComponents)
@@ -395,27 +404,37 @@ describe('LiveComponent', () => {
     expect(success.componentInstance.type)
       .withContext('The alert should be a success one')
       .toBe('success');
+  });
 
-    // lost the bet...
-    fixture.componentInstance.betWon = false;
-    fixture.detectChanges();
-    const betFailed = fixture.debugElement.query(By.directive(NgbAlert));
-    expect(betFailed)
-      .withContext('You should have a warning NgbAlert to display the bet failed')
-      .not.toBeNull();
-    expect(betFailed.nativeElement.textContent).toContain('You lost your bet.');
-    expect(betFailed.componentInstance.type)
-      .withContext('The alert should be a warning one')
-      .toBe('warning');
+  it('should display the finished race with an error', () => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'PENDING',
+      ponies: [
+        { id: 1, name: 'Sunny Sunday', color: 'BLUE' },
+        { id: 2, name: 'Pinkie Pie', color: 'GREEN' },
+        { id: 3, name: 'Awesome Fridge', color: 'YELLOW' }
+      ],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeActivatedRoute.snapshot.data = { race };
+    const positions = new Subject<Array<PonyWithPositionModel>>();
+    fakeRaceService.live.and.returnValue(positions);
 
-    // no winners (race was already over)
-    fixture.componentInstance.winners = [];
+    const fixture = TestBed.createComponent(LiveComponent);
+    const changeDetectorRef = (fixture.componentInstance as any).ref as ChangeDetectorRef;
+    spyOn(changeDetectorRef, 'markForCheck').and.callThrough();
     fixture.detectChanges();
-    expect(element.textContent).toContain('The race is over.');
+    positions.error(new Error());
+    fixture.detectChanges();
 
     // an error occurred
-    fixture.componentInstance.error = true;
-    fixture.detectChanges();
+    expect(changeDetectorRef.markForCheck).toHaveBeenCalled();
+    expect(fixture.componentInstance.error).toBeTruthy();
+    const debugElement = fixture.debugElement;
     const alert = debugElement.query(By.directive(NgbAlert));
     expect(alert)
       .withContext('You should have an NgbAlert to display the error')
@@ -431,6 +450,77 @@ describe('LiveComponent', () => {
     expect(debugElement.query(By.directive(NgbAlert)))
       .withContext('The NgbAlert should not be closable')
       .not.toBeNull();
+  });
+
+  it('should display the finished race if already over', () => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'PENDING',
+      ponies: [
+        { id: 1, name: 'Sunny Sunday', color: 'BLUE' },
+        { id: 2, name: 'Pinkie Pie', color: 'GREEN' },
+        { id: 3, name: 'Awesome Fridge', color: 'YELLOW' }
+      ],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 1
+    } as RaceModel;
+    fakeActivatedRoute.snapshot.data = { race };
+    const positions = new Subject<Array<PonyWithPositionModel>>();
+    fakeRaceService.live.and.returnValue(positions);
+
+    const fixture = TestBed.createComponent(LiveComponent);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement;
+    positions.complete();
+    fixture.detectChanges();
+
+    // no winners (race was already over)
+    fixture.componentInstance.winners = [];
+    fixture.detectChanges();
+    expect(element.textContent).toContain('The race is over.');
+  });
+
+  it('should display the finished race with lost bet', () => {
+    const fakeActivatedRoute: ActivatedRoute = TestBed.get(ActivatedRoute);
+    const race = {
+      id: 1,
+      name: 'Lyon',
+      status: 'PENDING',
+      ponies: [
+        { id: 1, name: 'Sunny Sunday', color: 'BLUE' },
+        { id: 2, name: 'Pinkie Pie', color: 'GREEN' },
+        { id: 3, name: 'Awesome Fridge', color: 'YELLOW' }
+      ],
+      startInstant: '2016-02-18T08:02:00Z',
+      betPonyId: 3
+    } as RaceModel;
+    fakeActivatedRoute.snapshot.data = { race };
+    const positions = new Subject<Array<PonyWithPositionModel>>();
+    fakeRaceService.live.and.returnValue(positions);
+
+    const fixture = TestBed.createComponent(LiveComponent);
+    fixture.detectChanges();
+
+    positions.next([
+      { id: 1, name: 'Sunny Sunday', color: 'BLUE', position: 101 },
+      { id: 2, name: 'Pinkie Pie', color: 'GREEN', position: 100 },
+      { id: 3, name: 'Awesome Fridge', color: 'YELLOW', position: 9 }
+    ]);
+    positions.complete();
+    fixture.detectChanges();
+
+    // lost the bet...
+    const betFailed = fixture.debugElement.query(By.directive(NgbAlert));
+    expect(betFailed)
+      .withContext('You should have a warning NgbAlert to display the bet failed')
+      .not.toBeNull();
+    expect(betFailed.nativeElement.textContent).toContain('You lost your bet.');
+    expect(betFailed.componentInstance.type)
+      .withContext('The alert should be a warning one')
+      .toBe('warning');
   });
 
   it('should listen to click events on ponies in the template', () => {
@@ -489,7 +579,7 @@ describe('LiveComponent', () => {
     fakeActivatedRoute.snapshot.data = { race };
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
 
     spyOn(liveComponent.clickSubject, 'next');
@@ -517,7 +607,7 @@ describe('LiveComponent', () => {
     fakeRaceService.boost.and.returnValue(of(race));
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
     tick();
 
@@ -562,7 +652,7 @@ describe('LiveComponent', () => {
     fakeRaceService.boost.and.returnValue(of(race));
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
     tick();
 
@@ -605,7 +695,7 @@ describe('LiveComponent', () => {
     fakeRaceService.boost.and.returnValue(of(race));
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
     tick();
 
@@ -657,7 +747,7 @@ describe('LiveComponent', () => {
     fakeRaceService.boost.and.returnValue(boost);
     fakeRaceService.live.and.returnValue(EMPTY);
 
-    const liveComponent = new LiveComponent(fakeRaceService, fakeActivatedRoute);
+    const liveComponent = new LiveComponent(fakeChangeDetectorRef, fakeRaceService, fakeActivatedRoute);
     liveComponent.ngOnInit();
     tick();
 

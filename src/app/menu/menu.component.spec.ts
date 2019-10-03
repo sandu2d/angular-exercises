@@ -82,6 +82,9 @@ describe('MenuComponent', () => {
   });
 
   it('should use routerLink to navigate', () => {
+    const fakeScoreUpdates = new Subject<UserModel>();
+    spyOn(fakeUserService, 'scoreUpdates').and.returnValue(fakeScoreUpdates);
+
     const fixture = TestBed.createComponent(MenuComponent);
 
     fixture.detectChanges();
@@ -90,8 +93,7 @@ describe('MenuComponent', () => {
     expect(links.length)
       .withContext('You should have only one routerLink to the home when the user is not logged')
       .toBe(1);
-
-    fixture.componentInstance.user = { login: 'cedric', money: 200 } as UserModel;
+    fakeUserService.userEvents.next({ login: 'cedric', money: 200 } as UserModel);
     fixture.detectChanges();
 
     const linksAfterLogin = fixture.debugElement.queryAll(By.directive(RouterLinkWithHref));
@@ -108,12 +110,14 @@ describe('MenuComponent', () => {
     const fakeScoreUpdates = new Subject<UserModel>();
     spyOn(fakeUserService, 'scoreUpdates').and.returnValue(fakeScoreUpdates);
     const user = { id: 1, login: 'cedric', money: 200 } as UserModel;
+    let userEvent: UserModel = null;
+    component.userEvents.subscribe(event => (userEvent = event));
     fakeUserService.userEvents.next(user);
     tick();
-
-    expect(component.user)
+    expect(userEvent)
       .withContext('Your component should listen to the `userEvents` observable on login')
       .toBe(user);
+
     expect(fakeUserService.scoreUpdates).toHaveBeenCalledWith(user.id);
     tick();
 
@@ -122,14 +126,14 @@ describe('MenuComponent', () => {
     fakeScoreUpdates.next(user);
     tick();
 
-    expect(component.user.money)
+    expect(userEvent.money)
       .withContext('Your component should listen to the `scoreUpdates` observable')
       .toBe(300);
 
     // emulate an error
     fakeScoreUpdates.error('You should catch potential errors on score updates with a `.catch()`');
     tick();
-    expect(component.user.money)
+    expect(userEvent.money)
       .withContext('Your component should catch error on score updates')
       .toBe(300);
 
@@ -138,7 +142,7 @@ describe('MenuComponent', () => {
     fakeScoreUpdates.next(user);
     tick();
 
-    expect(component.user.money)
+    expect(userEvent.money)
       .withContext('Your component should catch error on score updates')
       .toBe(400);
 
@@ -146,17 +150,18 @@ describe('MenuComponent', () => {
     fakeUserService.userEvents.next(null);
     tick();
 
-    expect(component.user)
+    expect(userEvent)
       .withContext('Your component should listen to the `userEvents` observable on logout')
       .toBe(null);
   }));
 
   it('should display the user if logged', () => {
+    const fakeScoreUpdates = new Subject<UserModel>();
+    spyOn(fakeUserService, 'scoreUpdates').and.returnValue(fakeScoreUpdates);
+
     const fixture = TestBed.createComponent(MenuComponent);
     fixture.detectChanges();
-
-    const component = fixture.componentInstance;
-    component.user = { login: 'cedric', money: 200 } as UserModel;
+    fakeUserService.userEvents.next({ login: 'cedric', money: 200 } as UserModel);
 
     fixture.detectChanges();
 
@@ -173,19 +178,13 @@ describe('MenuComponent', () => {
       .toContain('200');
   });
 
-  it('should unsubscribe on destroy', () => {
-    const component = new MenuComponent(fakeUserService, fakeRouter);
-    component.ngOnInit();
-    spyOn(component.userEventsSubscription, 'unsubscribe');
-    component.ngOnDestroy();
-
-    expect(component.userEventsSubscription.unsubscribe).toHaveBeenCalled();
-  });
-
   it('should display a logout button', () => {
+    const fakeScoreUpdates = new Subject<UserModel>();
+    spyOn(fakeUserService, 'scoreUpdates').and.returnValue(fakeScoreUpdates);
+
     const fixture = TestBed.createComponent(MenuComponent);
-    const component = fixture.componentInstance;
-    component.user = { login: 'cedric', money: 200 } as UserModel;
+    fixture.detectChanges();
+    fakeUserService.userEvents.next({ login: 'cedric', money: 200 } as UserModel);
     fixture.detectChanges();
     spyOn(fixture.componentInstance, 'logout');
 

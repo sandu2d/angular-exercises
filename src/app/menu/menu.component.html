@@ -1,23 +1,24 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-  <a class="navbar-brand" routerLink="">PonyRacer</a>
-  <button type="button" class="navbar-toggler" (click)="toggleNavbar()">
+  <a class="navbar-brand" routerLink="/">PonyRacer</a>
+  <button class="navbar-toggler" type="button" (click)="toggleNavbar()">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <div id="navbar" class="navbar-collapse" [class.collapse]="this.navbarCollapsed">
-    <ul class="navbar-nav mr-auto" *ngIf="this.user">
+  <div id="navbar" class="navbar-collapse" [class.collapse]="navbarCollapsed">
+    <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" routerLink="races">Races</a>
+        <a class="nav-link" *ngIf="userEvents | async" routerLink="/races">Races</a>
       </li>
     </ul>
-    <div class="nav navbar-nav" *ngIf="this.user">
-        <a class="nav-item nav-link mr-2" routerLink="/users/money/history">
-          {{ user.login }}
-          <span class="fa fa-star"></span>
-          {{ user.money }}
-        </a>
-        <button type="button" class="btn btn-link navbar-btn" (click)="logout($event)">
-          <span class="fa fa-power-off"></span>
-        </button>
+    <div class="nav navbar-nav">
+      <a class="nav-item nav-link mr-2" *ngIf="userEvents | async as user" routerLink="/users/money/history">
+        {{ user.login }}
+        <span class="fa fa-star"></span>
+        {{ user.money }}
+      </a>
+      <a (click)="logout($event)" class="nav-item nav-link" href="#" *ngIf="userEvents | async">
+        <span class="fa fa-power-off"></span>
+      </a>
     </div>
   </div>
 </nav>
+  
