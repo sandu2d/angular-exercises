@@ -6,6 +6,7 @@ import { RegisterComponent } from '../register/register.component';
 import { LoginComponent } from '../login/login.component';
 import { USERS_ROUTES } from './users.routes';
 import { CommonModule } from '@angular/common';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    RouterModule.forChild(USERS_ROUTES)
+    RouterModule.forChild(USERS_ROUTES),
+    SharedModule
   ]
 })
 export class UsersModule { }

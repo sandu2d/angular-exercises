@@ -2,22 +2,19 @@
     <div class="col-md-4 offset-md-4">
         <h1>Log in</h1>
 
-        <div class="alert alert-danger" *ngIf="authenticationFailed">
-        <button type="button" class="close" aria-label="Close" (click)="authenticationFailed = false">
-            <span aria-hidden="true">&#215;</span>
-        </button>
-        Nope, try again.
-        </div>
+        <pr-alert *ngIf="authenticationFailed" type="danger" (close)="authenticationFailed = false">
+            Nope, try again.
+        </pr-alert>
 
         <form (ngSubmit)="authenticate()" #loginForm="ngForm">
         <div class="form-group">
-            <label for="login">Login</label>
+            <label for="login" prFormLabel>Login</label>
             <input id="login" class="form-control" name="login" [(ngModel)]="credentials.login" required #loginCtrl="ngModel" />
             <div *ngIf="loginCtrl.dirty && loginCtrl.hasError('required')">Login is required</div>
         </div>
 
         <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password" prFormLabel>Password</label>
             <input
             id="password"
             class="form-control"

@@ -14,6 +14,7 @@ import { LiveComponent } from '../live/live.component';
 import { FromNowPipe } from '../from-now.pipe';
 import { RACES_ROUTES } from './races.routes';
 import { JwtInterceptorService } from '../jwt-interceptor.service';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,12 @@ import { JwtInterceptorService } from '../jwt-interceptor.service';
     FromNowPipe
   ],
   imports: [
-    CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule, RouterModule.forChild(RACES_ROUTES)
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    HttpClientModule,
+    RouterModule.forChild(RACES_ROUTES),
+    SharedModule
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useExisting: JwtInterceptorService, multi: true }],
 })
