@@ -1,9 +1,10 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { of, throwError } from 'rxjs';
 
+import { UsersModule } from '../users/users.module';
 import { RegisterComponent } from './register.component';
 import { UserService } from '../user.service';
 import { UserModel } from '../models/user.model';
@@ -14,8 +15,7 @@ describe('RegisterComponent', () => {
 
   beforeEach(() =>
     TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule],
-      declarations: [RegisterComponent],
+      imports: [UsersModule],
       providers: [{ provide: UserService, useValue: fakeUserService }, { provide: Router, useValue: fakeRouter }]
     })
   );
@@ -304,7 +304,7 @@ describe('RegisterComponent', () => {
   });
 
   it('should have min/max validators to check the year validity', () => {
-    const fixture: ComponentFixture<RegisterComponent> = TestBed.createComponent(RegisterComponent);
+    const fixture = TestBed.createComponent(RegisterComponent);
     fixture.detectChanges();
 
     const componentInstance = fixture.componentInstance;

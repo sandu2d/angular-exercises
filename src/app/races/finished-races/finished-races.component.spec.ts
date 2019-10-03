@@ -3,9 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { By } from '@angular/platform-browser';
 
 import { FinishedRacesComponent } from './finished-races.component';
+import { RacesModule } from '../races.module';
 import { RaceComponent } from '../../race/race.component';
-import { PonyComponent } from '../../pony/pony.component';
-import { FromNowPipe } from '../../from-now.pipe';
 
 describe('FinishedRacesComponent', () => {
   const activatedRoute = {
@@ -18,7 +17,7 @@ describe('FinishedRacesComponent', () => {
 
   beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [FinishedRacesComponent, RaceComponent, PonyComponent, FromNowPipe],
+      imports: [RacesModule],
       providers: [{ provide: ActivatedRoute, useValue: activatedRoute }]
     })
   );

@@ -1,15 +1,17 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { Router, UrlTree } from '@angular/router';
 
 import { LoggedInGuard } from './logged-in.guard';
 import { UserService } from './user.service';
 import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
+import { RacesModule } from './races/races.module';
 
 describe('LoggedInGuard', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [AppModule]
+      imports: [AppModule, RacesModule, RouterTestingModule]
     });
   });
 

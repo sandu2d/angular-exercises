@@ -4,9 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { By } from '@angular/platform-browser';
 
 import { PendingRacesComponent } from './pending-races.component';
+import { RacesModule } from '../races.module';
 import { RaceComponent } from '../../race/race.component';
-import { PonyComponent } from '../../pony/pony.component';
-import { FromNowPipe } from '../../from-now.pipe';
 
 describe('PendingRacesComponent', () => {
   const activatedRoute = {
@@ -19,8 +18,7 @@ describe('PendingRacesComponent', () => {
 
   beforeEach(() =>
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
-      declarations: [PendingRacesComponent, RaceComponent, PonyComponent, FromNowPipe],
+      imports: [RacesModule, RouterTestingModule],
       providers: [{ provide: ActivatedRoute, useValue: activatedRoute }]
     })
   );

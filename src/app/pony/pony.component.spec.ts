@@ -1,12 +1,13 @@
 import { async, TestBed } from '@angular/core/testing';
 
+import { RacesModule } from '../races/races.module';
 import { PonyComponent } from './pony.component';
 import { PonyModel } from '../models/pony.model';
 
 describe('PonyComponent', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
-      declarations: [PonyComponent]
+      imports: [RacesModule]
     })
   );
 
