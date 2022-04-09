@@ -26,7 +26,7 @@
     "bootstrap": "4.3.1",
     "chart.js": "2.8.0",
     "font-awesome": "4.7.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "rxjs": "6.5.2",
     "tslib": "1.10.0",
     "webstomp-client": "1.2.6",
